@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "alpinejs",
+      "camelcase": "Alpinejs",
+      "title": "Alpinejs",
+      "scope": "source.alpinejs",
+      "file-types": [
+        "alpinejs"
+      ],
+      "injection-regex": "^alpinejs$",
+      "class-name": "TreeSitterAlpinejs"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "AlpineJs grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Assem Alwaseai",
+        "email": "assemcc2022@gmail.com",
+        "url": "https://github.com/A909M"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/A909M/tree-sitter-alpinejs"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
