@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine.js Todo App</title>
+</head>
+<body>
+    <div x-data="{ 
+        todos: [
+            { id: 1, text: 'Learn Alpine.js', completed: false },
+            { id: 2, text: 'Build a todo app', completed: true }
+        ], 
+        newTodo: '', 
+        filter: 'all' 
+    }" class="todo-app">
+        
+        <h1>Alpine.js Todo App</h1>
+        
+        <form @submit.prevent="
+            if (newTodo.trim()) {
+                todos.push({ 
+                    id: Date.now(), 
+                    text: newTodo.trim(), 
+                    completed: false 
+                });
+                newTodo = '';
+            }
+        ">
+            <input 
+                x-model="newTodo" 
+                :placeholder="'Add todo...'" 
+                @keyup.escape="newTodo = ''"
+                type="text"
+                class="new-todo">
+            <button type="submit">Add</button>
+        </form>
+        
+        <div class="filters">
+            <button 
+                @click="filter = 'all'"
+                :class="filter === 'all' ? 'active' : ''"
+                type="button">All</button>
+            <button 
+                @click="filter = 'active'"
+                :class="filter === 'active' ? 'active' : ''"
+                type="button">Active</button>
+            <button 
+                @click="filter = 'completed'"
+                :class="filter === 'completed' ? 'active' : ''"
+                type="button">Completed</button>
+        </div>
+        
+        <ul class="todo-list">
+            <template x-for="todo in todos.filter(t => 
+                filter === 'all' || 
+                (filter === 'active' && !t.completed) || 
+                (filter === 'completed' && t.completed)
+            )" :key="todo.id">
+                <li :class="{ 'completed': todo.completed }">
+                    <input 
+                        type="checkbox" 
+                        x-model="todo.completed"
+                        @change="$dispatch('todo-changed', todo)">
+                    <span x-text="todo.text"></span>
+                    <button 
+                        @click="todos = todos.filter(t => t.id !== todo.id)"
+                        type="button">Delete</button>
+                </li>
+            </template>
+        </ul>
+        
+        <div class="stats" x-show="todos.length > 0" x-transition>
+            <span x-text="`${todos.filter(t => !t.completed).length} items left`"></span>
+            <button 
+                x-show="todos.some(t => t.completed)"
+                @click="todos = todos.filter(t => !t.completed)"
+                type="button">Clear completed</button>
+        </div>
+    </div>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

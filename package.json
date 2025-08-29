@@ -29,7 +29,8 @@
   ],
   "dependencies": {
     "node-addon-api": "^8.3.1",
-    "node-gyp-build": "^4.8.4"
+    "node-gyp-build": "^4.8.4",
+    "tree-sitter-html": "^0.23.2"
   },
   "devDependencies": {
     "prebuildify": "^6.0.1",
@@ -48,5 +49,13 @@
     "prestart": "tree-sitter build --wasm",
     "start": "tree-sitter playground",
     "test": "node --test bindings/node/*_test.js"
-  }
+  },
+  "tree-sitter": [
+    {
+      "scope": "text.html.alpinejs",
+      "file-types": [
+        "html"
+      ]
+    }
+  ]
 }
