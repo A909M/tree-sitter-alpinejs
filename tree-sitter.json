@@ -7,7 +7,8 @@
       "title": "Alpinejs",
       "scope": "source.alpinejs",
       "file-types": [
-        "alpinejs"
+        "alpinejs",
+        "html"
       ],
       "injection-regex": "^alpinejs$",
       "class-name": "TreeSitterAlpinejs"
