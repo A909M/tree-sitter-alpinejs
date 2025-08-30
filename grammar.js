@@ -7,130 +7,108 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
-module.exports = grammar({
+const HTML = require("tree-sitter-html/grammar");
+
+module.exports = grammar(HTML, {
   name: "alpinejs",
 
-  extras: $ => [/\s+/],
+  conflicts: $ => [
+    [$.x_bind],
+    [$.x_on],
+    [$.x_transition],
+  ],
 
   rules: {
-    // Start with the most basic HTML structure
-    document: $ => repeat(choice(
-      $.element,
-      $.text
-    )),
-
-    // Basic HTML element: <div>content</div> or <input />
-    element: $ => choice(
-      // Regular element with content
-      seq(
-        $.start_tag,
-        repeat(choice($.element, $.text)),
-        $.end_tag
-      ),
-      // Self-closing element  
-      $.self_closing_tag
+    // Override the original attribute rule to have a stricter name
+    attribute: $ => seq(
+      alias(/[a-zA-Z_][a-zA-Z_0-9-]*/, $.attribute_name),
+      optional(seq(
+        '=',
+        choice(
+          $.attribute_value,
+          $.quoted_attribute_value
+        )
+      ))
     ),
 
-    start_tag: $ => seq(
-      '<',
-      $.tag_name,
-      repeat($.attribute),
-      '>'
+    start_tag: ($, original) => seq(
+        '<',
+        alias($._start_tag_name, $.tag_name),
+        repeat(choice($.alpine_attribute, $.attribute)),
+        '>',
     ),
 
-    // Context-aware attributes: Alpine vs regular HTML
-    attribute: $ => choice(
-      $.alpine_attribute,
-      $.regular_attribute
+    self_closing_tag: ($, original) => seq(
+        '<',
+        alias($._start_tag_name, $.tag_name),
+        repeat(choice($.alpine_attribute, $.attribute)),
+        '/>',
     ),
 
     alpine_attribute: $ => seq(
-      choice($.alpine_directive, $.alpine_shorthand),
-      optional(seq('=', $.alpine_attribute_value))
-    ),
-
-    regular_attribute: $ => seq(
-      $.regular_attribute_name,
-      optional(seq('=', $.regular_attribute_value))
-    ),
-
-    // Alpine.js directive like x-data, x-show, x-on:click (higher precedence)
-    alpine_directive: $ => /x-[a-zA-Z][a-zA-Z0-9-]*(:[\w.-]+)?/,
-
-    // Alpine.js shorthand: @click for x-on:click, :class for x-bind:class
-    alpine_shorthand: $ => choice(
-      /[@][a-zA-Z][a-zA-Z0-9.-]*/,  // @click, @submit.prevent
-      /[:][a-zA-Z][a-zA-Z0-9.-]*/   // :class, :disabled
-    ),
-
-    // Regular HTML attribute names (lower precedence for conflicts)  
-    regular_attribute_name: $ => /[a-zA-Z][a-zA-Z0-9-]*/,
-
-    // Alpine attribute values contain Alpine expressions
-    alpine_attribute_value: $ => choice(
-      seq('"', $.alpine_expression, '"'),
-      seq("'", $.alpine_expression, "'")
-    ),
-
-    // Regular attribute values are plain text
-    regular_attribute_value: $ => choice(
-      seq('"', /[^"]*/, '"'),
-      seq("'", /[^']*/, "'"),
-      /[^<>"'=\s]+/  // unquoted
-    ),
-
-
-    // Simple Alpine.js expressions 
-    alpine_expression: $ => choice(
-      $.object_literal,
-      $.postfix_expression,
-      $.identifier
-    ),
-
-    // Simple object: { count: 0, name: "test" }
-    object_literal: $ => seq(
-      '{',
+      choice(
+        $.alpine_directive,
+        $.alpine_shorthand
+      ),
       optional(seq(
-        $.object_property,
-        repeat(seq(',', $.object_property))
-      )),
-      '}'
+        '=',
+        choice(
+          $.quoted_attribute_value,
+          $.attribute_value
+        )
+      ))
     ),
 
-    object_property: $ => seq(
-      $.identifier,
-      ':',
-      choice($.identifier, $.number, $.string_literal)
+    alpine_directive: $ => choice(
+      $.x_data,
+      $.x_show,
+      $.x_bind,
+      $.x_on,
+      $.x_text,
+      $.x_html,
+      $.x_model,
+      $.x_if,
+      $.x_for,
+      $.x_transition,
+      $.x_effect,
+      $.x_ignore,
+      $.x_ref,
+      $.x_cloak,
+      $.x_init,
+      $.x_teleport,
+      $.x_id
     ),
 
-    identifier: $ => /[a-zA-Z_$][a-zA-Z0-9_$]*/,
-    number: $ => /\d+/,
-    string_literal: $ => choice(
-      seq('"', /[^"]*/, '"'),
-      seq("'", /[^']*/, "'")
-    ),
+    x_data: $ => 'x-data',
+    x_show: $ => 'x-show',
+    x_text: $ => 'x-text',
+    x_html: $ => 'x-html',
+    x_model: $ => 'x-model',
+    x_if: $ => 'x-if',
+    x_for: $ => 'x-for',
+    x_effect: $ => 'x-effect',
+    x_ignore: $ => 'x-ignore',
+    x_ref: $ => 'x-ref',
+    x_cloak: $ => 'x-cloak',
+    x_init: $ => 'x-init',
+    x_teleport: $ => 'x-teleport',
+    x_id: $ => 'x-id',
 
-    // Postfix expressions like count++, count--
-    postfix_expression: $ => seq(
-      $.identifier,
-      choice('++', '--')
-    ),
+    x_bind: $ => seq('x-bind', optional(seq(':', alias(/[^= >]+/, $.attribute_name)))),
+    x_on: $ => seq('x-on', optional(seq(':', alias(/[^= >]+/, $.event_name)))),
+    x_transition: $ => seq('x-transition', optional(seq(':', alias(/[^= >]+/, $.transition_name)))),
 
-    end_tag: $ => seq(
-      '</',
-      $.tag_name,
-      '>'
-    ),
-
-    self_closing_tag: $ => seq(
-      '<',
-      $.tag_name,
-      repeat($.attribute),
-      '/>'
-    ),
-
-    tag_name: $ => /[a-zA-Z][a-zA-Z0-9-]*/,
-
-    text: $ => /[^<]+/
+    alpine_shorthand: $ => choice(
+      // @event
+      seq(
+        '@',
+        alias(/[^= >]+/, $.event_name)
+      ),
+      // :binding
+      seq(
+        ':',
+        alias(/[^= >]+/, $.attribute_name)
+      )
+    )
   }
 });

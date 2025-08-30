@@ -1,113 +1,21 @@
-; ============================================================================
-; Alpine.js Tree-sitter Syntax Highlighting Queries
-; ============================================================================
+; Directives like x-data, x-show
+(alpine_directive) @keyword
 
-; Alpine directives (x-data, x-show, x-text, etc.)
-(alpine_directive) @attribute.alpine
+; Shorthands like @click, :class
+(alpine_shorthand) @keyword
 
-; Alpine shorthand (@click, :class, etc.)  
-(alpine_shorthand) @attribute.alpine.shorthand
+; Specifically highlight the event name in a shorthand
+(alpine_shorthand
+  (event_name) @function)
 
-; HTML structure
-(tag_name) @tag
+; Specifically highlight the attribute name in a bind shorthand
+(alpine_shorthand
+  (attribute_name) @property)
 
-; Regular HTML attributes
-(regular_attribute_name) @attribute
-
-; String literals in HTML attributes  
-(regular_attribute_value
-  "\"" @punctuation.delimiter
-  "\"" @punctuation.delimiter)
-(regular_attribute_value 
-  "'" @punctuation.delimiter
-  "'" @punctuation.delimiter)
-
-; ============================================================================
-; Alpine.js Expressions (JavaScript-like syntax)
-; ============================================================================
-
-; Object literals: { count: 0, name: 'test' }
-(object_literal
-  "{" @punctuation.bracket
-  "}" @punctuation.bracket)
-
-(object_property
-  (identifier) @property
-  ":" @punctuation.delimiter)
-
-; Alpine expression delimiters
-(alpine_attribute_value
-  "\"" @punctuation.delimiter
-  "\"" @punctuation.delimiter)
-(alpine_attribute_value
-  "'" @punctuation.delimiter  
-  "'" @punctuation.delimiter)
-
-; Identifiers and variables
-(identifier) @variable
-
-; Numbers
-(number) @number
-
-; String literals within Alpine expressions
-(string_literal
-  "\"" @punctuation.delimiter
-  "\"" @punctuation.delimiter) @string
-(string_literal
-  "'" @punctuation.delimiter
-  "'" @punctuation.delimiter) @string
-
-; Postfix operators (count++, count--)
-(postfix_expression
-  (identifier) @variable
-  ["++" "--"] @operator)
-
-; Object property access
-(object_property
-  ":" @punctuation.delimiter)
-
-; Comma separators in objects
-"," @punctuation.delimiter
-
-; ============================================================================
-; HTML Keywords and Special Cases
-; ============================================================================
-
-; Self-closing tag syntax
-(self_closing_tag
-  "<" @punctuation.bracket
-  "/>" @punctuation.bracket)
-
-; Regular tag syntax  
-(start_tag
-  "<" @punctuation.bracket
-  ">" @punctuation.bracket)
-(end_tag
-  "</" @punctuation.bracket
-  ">" @punctuation.bracket)
-
-; Attribute assignment
-"=" @operator
-
-; ============================================================================  
-; Alpine.js Specific Highlighting
-; ============================================================================
-
-; Highlight Alpine directive names with special styling
-((alpine_directive) @keyword.alpine
-  (#match? @keyword.alpine "^x-(data|show|text|html|if|for|model|cloak|transition)$"))
-
-; Highlight Alpine event handlers  
-((alpine_shorthand) @function.alpine
-  (#match? @function.alpine "^@"))
-
-; Highlight Alpine data binding
-((alpine_shorthand) @variable.alpine  
-  (#match? @variable.alpine "^:"))
-
-; ============================================================================
-; Text Content
-; ============================================================================
-
-; Plain text content
-(text) @string.plain
+; Highlight the directive name in x-on, x-bind, etc.
+(x_on
+  (event_name) @function)
+(x_bind
+  (attribute_name) @property)
+(x_transition
+  (transition_name) @property)

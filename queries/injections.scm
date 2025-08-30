@@ -1,101 +1,69 @@
-; ============================================================================
-; Alpine.js Tree-sitter Injection Queries  
-; ============================================================================
-; These queries define where JavaScript should be injected for syntax 
-; highlighting and IntelliSense within Alpine.js expressions.
+; Injects JavaScript into Alpine.js attribute values.
 
-; ============================================================================
-; Alpine Directive Injections
-; ============================================================================
-
-; Inject JavaScript into x-data expressions
-; Examples: x-data="{ count: 0, items: [] }"
-((alpine_attribute
-  (alpine_directive) @_directive
-  (alpine_attribute_value
-    (alpine_expression) @injection.content))
-  (#match? @_directive "^x-data$")
+; x-data contains a JavaScript object expression.
+(
+  (alpine_attribute
+    (alpine_directive (x_data))
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
   (#set! injection.language "javascript")
-  (#set! injection.include-children))
+)
 
-; Inject JavaScript into x-show/x-if expressions  
-; Examples: x-show="isVisible", x-if="count > 0"
-((alpine_attribute
-  (alpine_directive) @_directive
-  (alpine_attribute_value
-    (alpine_expression) @injection.content))
-  (#match? @_directive "^x-(show|if|text|html|model)$")  
+; Directives that contain a JavaScript expression to be evaluated.
+(
+  (alpine_attribute
+    (alpine_directive
+      [
+        (x_show)
+        (x_if)
+        (x_text)
+        (x_html)
+        (x_model)
+        (x_effect)
+        (x_init)
+        (x_teleport)
+        (x_bind)
+        (x_transition)
+      ])
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
   (#set! injection.language "javascript")
-  (#set! injection.include-children))
+)
 
-; Inject JavaScript into x-for expressions
-; Examples: x-for="item in items"
-((alpine_attribute
-  (alpine_directive) @_directive
-  (alpine_attribute_value
-    (alpine_expression) @injection.content))
-  (#match? @_directive "^x-for$")
+; x-on contains a JavaScript statement.
+(
+  (alpine_attribute
+    (alpine_directive (x_on))
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
   (#set! injection.language "javascript")
-  (#set! injection.include-children))
+)
 
-; ============================================================================
-; Alpine Shorthand Injections
-; ============================================================================
-
-; Inject JavaScript into event handlers (@click, @submit, etc.)
-; Examples: @click="count++", @submit.prevent="handleSubmit()"
-((alpine_attribute
-  (alpine_shorthand) @_shorthand
-  (alpine_attribute_value
-    (alpine_expression) @injection.content))
-  (#match? @_shorthand "^@")
+; Shorthand @ for x-on
+(
+  (alpine_attribute
+    (alpine_shorthand) @shorthand
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
+  (#match? @shorthand "^@")
   (#set! injection.language "javascript")
-  (#set! injection.include-children))
+)
 
-; Inject JavaScript into data binding (:class, :disabled, etc.)  
-; Examples: :class="isActive ? 'active' : ''", :disabled="loading"
-((alpine_attribute
-  (alpine_shorthand) @_shorthand
-  (alpine_attribute_value
-    (alpine_expression) @injection.content))
-  (#match? @_shorthand "^:")
+; Shorthand : for x-bind
+(
+  (alpine_attribute
+    (alpine_shorthand) @shorthand
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
+  (#match? @shorthand "^:")
   (#set! injection.language "javascript")
-  (#set! injection.include-children))
+)
 
-; ============================================================================
-; Complex Expression Injections
-; ============================================================================
-
-; Inject JavaScript into object literals within Alpine expressions
-; This provides proper JS highlighting for complex data structures
-(object_literal) @injection.content
+; x-for has a special "item in items" syntax.
+(
+  (alpine_attribute
+    (alpine_directive (x_for))
+    (quoted_attribute_value
+      (attribute_value) @injection.content))
   (#set! injection.language "javascript")
-  (#set! injection.include-children)
-
-; Inject JavaScript into postfix expressions (count++, items--)
-(postfix_expression) @injection.content  
-  (#set! injection.language "javascript")
-  (#set! injection.include-children)
-
-; ============================================================================
-; Special Alpine.js Patterns
-; ============================================================================
-
-; Handle Alpine magic properties ($el, $refs, $store, etc.)
-; These should be treated as JavaScript but with Alpine-specific context
-((alpine_attribute_value
-  (alpine_expression
-    (identifier) @injection.content))
-  (#match? @injection.content "^\\$")
-  (#set! injection.language "javascript")
-  (#set! injection.include-children))
-
-; ============================================================================
-; Template Literals and Complex Expressions
-; ============================================================================
-
-; Future: Template literal support for advanced Alpine expressions  
-; This will be useful when we extend the grammar to support template strings
-
-; Future: Function call support
-; For expressions like x-data="{ init() { this.count = 0; } }"
+)

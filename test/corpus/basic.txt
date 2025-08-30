@@ -7,14 +7,12 @@ Basic HTML element
 --------------------------------------------------------------------------------
 
 (document
-  (text)
   (element
     (start_tag
       (tag_name))
     (text)
     (end_tag
-      (tag_name)))
-  (text))
+      (tag_name))))
 
 ================================================================================
 Simple Alpine directive
@@ -25,20 +23,14 @@ Simple Alpine directive
 --------------------------------------------------------------------------------
 
 (document
-  (text)
   (element
     (start_tag
       (tag_name)
-      (attribute
-        (alpine_attribute
-          (alpine_directive)
-          (alpine_attribute_value
-            (alpine_expression
-              (identifier))))))
+      (alpine_attribute
+        (alpine_directive (x_data))
+        (quoted_attribute_value (attribute_value))))
     (text)
-    (end_tag
-      (tag_name)))
-  (text))
+    (end_tag (tag_name))))
 
 ================================================================================
 Alpine object literal
@@ -49,23 +41,14 @@ Alpine object literal
 --------------------------------------------------------------------------------
 
 (document
-  (text)
   (element
     (start_tag
       (tag_name)
-      (attribute
-        (alpine_attribute
-          (alpine_directive)
-          (alpine_attribute_value
-            (alpine_expression
-              (object_literal
-                (object_property
-                  (identifier)
-                  (number))))))))
+      (alpine_attribute
+        (alpine_directive (x_data))
+        (quoted_attribute_value (attribute_value))))
     (text)
-    (end_tag
-      (tag_name)))
-  (text))
+    (end_tag (tag_name))))
 
 ================================================================================
 Alpine shorthand directives
@@ -76,27 +59,17 @@ Alpine shorthand directives
 --------------------------------------------------------------------------------
 
 (document
-  (text)
   (element
     (start_tag
       (tag_name)
-      (attribute
-        (alpine_attribute
-          (alpine_shorthand)
-          (alpine_attribute_value
-            (alpine_expression
-              (postfix_expression
-                (identifier))))))
-      (attribute
-        (alpine_attribute
-          (alpine_shorthand)
-          (alpine_attribute_value
-            (alpine_expression
-              (identifier))))))
+      (alpine_attribute
+        (alpine_shorthand (event_name))
+        (quoted_attribute_value (attribute_value)))
+      (alpine_attribute
+        (alpine_shorthand (attribute_name))
+        (quoted_attribute_value (attribute_value))))
     (text)
-    (end_tag
-      (tag_name)))
-  (text))
+    (end_tag (tag_name))))
 
 ================================================================================
 Self-closing tag with Alpine
@@ -107,14 +80,9 @@ Self-closing tag with Alpine
 --------------------------------------------------------------------------------
 
 (document
-  (text)
   (element
     (self_closing_tag
       (tag_name)
-      (attribute
-        (alpine_attribute
-          (alpine_directive)
-          (alpine_attribute_value
-            (alpine_expression
-              (identifier)))))))
-  (text))
+      (alpine_attribute
+        (alpine_directive (x_model))
+        (quoted_attribute_value (attribute_value))))))

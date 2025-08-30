@@ -7,7 +7,6 @@
       "title": "Alpinejs",
       "scope": "source.alpinejs",
       "file-types": [
-        "alpinejs",
         "html"
       ],
       "injection-regex": "^alpinejs$",
