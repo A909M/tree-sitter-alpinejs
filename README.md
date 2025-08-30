@@ -2,6 +2,12 @@
 
 Alpine.js grammar for [tree-sitter](https://github.com/tree-sitter/tree-sitter).
 
+> [!WARNING]
+>
+> Please note that this project is a hobby project and still in development.
+> It’s currently not functional nor ready for use.
+
+
 ## Install
 
 ```bash
